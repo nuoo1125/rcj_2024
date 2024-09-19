@@ -6,6 +6,7 @@
 #include "lib/stepper.h"
 #include "lib/servo.h"
 #include "lib/tof.h"
+＃include "lib/debug.h"
 #define shiki 800
 int data[6];
 typedef enum{
