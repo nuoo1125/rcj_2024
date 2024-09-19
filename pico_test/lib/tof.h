@@ -15,12 +15,3 @@ uint16_t distance(int i2c){
     distance = (data[0]<<8)|data[1];
     return distance;
 }
-int main(){
-    i2c_init(i2c0,100*1000);
-    gpio_set_function(sda_1,GPIO_FUNC_I2C);
-    gpio_set_function(scl_1,GPIO_FUNC_I2C);
-    gpio_pull_up(sda_1);
-    gpio_pull_up(scl_1);
-    uint16_t dis = distance(0x29);
-    printf(dis);
-}
