@@ -8,6 +8,14 @@
 #include "lib/tof.h"
 #define shiki 800
 int data[6];
+typedef enum{
+    car_left;
+    car_right;
+    car_turn;
+    car_serch;
+    car_hold;
+    car_throw;
+}car_state;
 void photo(){
     mcp3x08_init();
     for(int i=2;i<8;i++){
