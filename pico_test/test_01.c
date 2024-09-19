@@ -4,6 +4,8 @@
 #include "hardware/spi.h"
 #include "lib/mcp3208.h"
 #include "lib/stepper.h"
+#include "lib/servo.h"
+#include "lib/tof.h"
 #define shiki 800
 int data[6];
 void photo(){
