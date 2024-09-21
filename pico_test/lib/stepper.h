@@ -5,11 +5,11 @@
 #include "hardware/spi.h"
 #include "hardware/adc.h"
 
-#define clock_l 20
-#define direction_l  21
-#define clock_r 18
-#define direction_r 19 
-#define reset 16 
+#define clock_l 18
+#define direction_l  19
+#define clock_r 16
+#define direction_r 17 
+#define reset 21 
 void stepper_setup(){
     gpio_init(clock_l);
     gpio_init(clock_r);
