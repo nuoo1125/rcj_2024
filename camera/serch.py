@@ -1,19 +1,20 @@
 import sensor, image, lcd, time
 
 # カメラとLCDの初期化
-lcd.init()
-sensor.reset()
-sensor.set_pixformat(sensor.GRAYSCALE)  # グレースケールモードに設定
-sensor.set_framesize(sensor.QVGA)
-sensor.skip_frames(time = 2000)
-sensor.set_auto_gain(False)  # 自動ゲインをオフにする
-sensor.set_auto_whitebal(False)  # 自動ホワイトバランスをオフにする
+def silver_init():
+    lcd.init()
+    sensor.reset()
+    sensor.set_pixformat(sensor.GRAYSCALE)  # グレースケールモードに設定
+    sensor.set_framesize(sensor.QVGA)
+    sensor.skip_frames(time = 2000)
+    sensor.set_auto_gain(False)  # 自動ゲインをオフにする
+    sensor.set_auto_whitebal(False)  # 自動ホワイトバランスをオフにする
 
-# グレースケールしきい値の設定
-threshold = (180, 255)  # 銀色のボールを認識するための輝度範囲
+    # グレースケールしきい値の設定
+    threshold = (180, 255)  # 銀色のボールを認識するための輝度範囲
 
 # メインループ
-while(True):
+def silever_camera():
     img = sensor.snapshot()  # カメラ画像をキャプチャ
 
     # しきい値に基づいてバイナリイメージを作成
