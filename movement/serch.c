@@ -5,7 +5,7 @@ if(silver == true){
     if(car == found_car){
       angle_set();
       dis = infinity;
-      while(dis<定数){
+      while(dis>定数){
         tof();
         go_forward();
         sleep_ms(100);//必要かはわからない
@@ -25,7 +25,7 @@ if(silver == true){
     if(car == found_car){
       angle_set();
       dis = infinity;
-      while(dis<定数){
+      while(dis>定数){
         tof();
         go_forward();
         sleep_ms(100);//必要かはわからない
