@@ -1,3 +1,4 @@
+//気にする必要ないかもだけど、どうやらclkdivは1.0から255.996の間で設定するらしい
 #include "pico/stdlib.h"
 #include "hardware/pwm.h"
 #include "pico/binary_info.h"
@@ -19,6 +20,20 @@ void stepper_setup(){
     gpio_set_function(clock_r,GPIO_FUNC_PWM);
     gpio_set_dir(direction_l,GPIO_OUT);
     gpio_set_dir(direction_r,GPIO_OUT);
+}
+void stepper_break(){
+    uint slice_num_l = pwm_gpio_to_slice_num(clock_l);
+    uint chan_l = pwm_gpio_to_channel(clock_l);
+    pwm_set_clkdiv(slice_num_l,3500);
+    pwm_set_wrap(slice_num_l,10);
+    pwm_set_chan_level(slice_num_l, chan_l, 500);
+    uint slice_num_r = pwm_gpio_to_slice_num(clock_r);
+    uint chan_r = pwm_gpio_to_channel(clock_r);
+    pwm_set_clkdiv(slice_num_r,3500);
+    pwm_set_wrap(slice_num_r, 1250);
+    pwm_set_chan_level(slice_num_r, chan_r, 500);
+    pwm_set_enabled(slice_num_l,true);
+    pwm_set_enabled(slice_num_r, true);
 }
 void stepper_slow(bool forward_l,bool forward_r){
     if(forward_l == 1 && forward_r == 1){
