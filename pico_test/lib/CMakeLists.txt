@@ -1,0 +1,5 @@
+add_subdirectory(debagu)
+add_subdirectory(mcp3208)
+add_subdirectory(servo)
+add_subdirectory(stepper)
+add_subdirectory(tof)

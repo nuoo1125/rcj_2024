@@ -1,11 +1,10 @@
+#include "tof.h"
 #include "pico/stdlib.h"
 #include "hardware/pwm.h"
 #include "pico/binary_info.h"
 #include "hardware/i2c.h"
 #include "hardware/spi.h"
 #include "hardware/adc.h"
-#define sda_1 8
-#define scl_1 9
 uint16_t distance(int i2c){
     uint8_t data[2];
     uint16_t distance;
