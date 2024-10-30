@@ -18,6 +18,7 @@ int cds_data[2];
 int data[6];
 int switch_sum = 0;
 void linetrace();
+void serch();
 typedef enum{
     car_left,
     car_right,
@@ -52,6 +53,9 @@ void cds(){
     printf("%d\n",cds_data[0]);
     printf("%d\n",cds_data[1]);
     sleep_ms(500);
+}
+void serch(){
+    bozzer();
 }
 void cross(){
     stepper_break();
@@ -91,7 +95,7 @@ void linetrace(){//crossは交差点などの時にもう一段階判断する�
     photo();
     if(data[0] < shiki&&data[1]<shiki&&data[2]<shiki)cross();
     else if(data[2] < shiki&&data[3]<shiki&&data[4]<shiki)cross();
-    else if(data[0]>silver||data[1]>silver||data[2]>silver||data[3]>silver||data[4]>silver)car = car_serch;
+    else if(data[0]>silver||data[1]>silver||data[2]>silver||data[3]>silver||data[4]>silver)serch();
     else{
         if(data[1]>shiki&&data[3]<shiki)stepper_slow(1,0);
         if(data[1]<shiki&&data[3]>shiki)stepper_slow(0,1);
