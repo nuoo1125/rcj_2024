@@ -5,10 +5,6 @@
 #include "hardware/i2c.h"
 #include "hardware/spi.h"
 
-
-
-
-
 void stepper_setup(){
     gpio_init(clock_l);
     gpio_init(clock_r);

@@ -9,6 +9,11 @@
 extern "C" {
 #endif
 void sg90_angle(float angle);
+void mg996r(float angle);
+void open();
+void close();
+void up();
+void down();
 #ifdef __cplusplus
 }
 #endif

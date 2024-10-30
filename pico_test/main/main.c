@@ -10,10 +10,8 @@
 #include "debagu/debagu.h"
 
 #define silver 2000
-#define shiki 800
+#define shiki 700
 #define green 1000//適当
-#define green_led 12
-#define red_led 13
 int cds_data[2];
 int data[6];
 int switch_sum = 0;
@@ -38,24 +36,15 @@ void photo(){
         printf("%d\n",data[i]);
     }
 }
-
-void cds_init(){
-    gpio_init(red_led);
-    gpio_set_dir(red_led,GPIO_OUT);
-    gpio_init(green_led);
-    gpio_set_dir(green_led,GPIO_OUT);
-    mcp3x08_init();
-}
 void cds(){
     gpio_put(green_led,1);
     cds_data[0] = mcp3208_read(0);
     cds_data[1] = mcp3208_read(1);
     printf("%d\n",cds_data[0]);
     printf("%d\n",cds_data[1]);
-    sleep_ms(500);
 }
 void serch(){
-    bozzer();
+    printf("serch");
 }
 void cross(){
     stepper_break();
@@ -89,7 +78,6 @@ void cross(){
             linetrace();
         }
     }
-    
 }
 void linetrace(){//crossは交差点などの時にもう一段階判断する用　serchはサーチ
     photo();
@@ -102,7 +90,6 @@ void linetrace(){//crossは交差点などの時にもう一段階判断する�
         else stepper_slow(1,1);        
     }
 }
-
 void sw_init(){
     gpio_init(22);
     gpio_set_dir(22,GPIO_IN);
