@@ -9,7 +9,6 @@
 #include "tof/tof.h"
 #include "debagu/debagu.h"
 
-
 #define silver 2000
 #define shiki 800
 #define green 1000//適当
@@ -17,17 +16,20 @@
 #define red_led 13
 int cds_data[2];
 int data[6];
-int ans = 0;
-//typedef enum{
-  //  car_left,
-    //car_right,
-    //car_turn,
-   // car_serch,
-   // car_hold,
-    //car_throw
-//}car_state;
+int switch_sum = 0;
+void linetrace();
+typedef enum{
+    car_left,
+    car_right,
+    car_turn,
+    car_serch,
+    car_hold,
+    car_throw,
+    car_cross,
+    car_start
+}car_state;
+car_state car = car_start;
 void photo(){
-    mcp3x08_init();
     for(int i=0;i<5;i++){
         data[i] = mcp3208_read(i+2);
         printf("%d",i);
@@ -47,76 +49,78 @@ void cds(){
     gpio_put(green_led,1);
     cds_data[0] = mcp3208_read(0);
     cds_data[1] = mcp3208_read(1);
-   // printf("%d\n",cds_data[0]);
+    printf("%d\n",cds_data[0]);
     printf("%d\n",cds_data[1]);
     sleep_ms(500);
-}
-void linetrace(){//crossは交差点などの時にもう一段階判断する用　serchはサーチ
-    photo();
-    if(data[0] < shiki&&data[1]<shiki&&data[2]<shiki)cross();
-    else if(data[2] < shiki&&data[3]<shiki&&data[4]<shiki)cross();   
- //   else if(data[0]>silver)serch();
-    else{
-        if(data[1]>shiki&&data[3]<shiki)stepper_slow(0,1);
-        if(data[1]<shiki&&data[3]>shiki)stepper_slow(1,0);
-        else stepper_slow(1,1);        
-    }
 }
 void cross(){
     stepper_break();
     cds();
-    if(cds_data[0]>green&&cds_data[1]>green)stepper_turn();
-    else if(cds_data[0]>green)stepper_turn_left();
-    else if(cds_data[1]>green)stepper_turn_right();
+    if(cds_data[0]>green&&cds_data[1]>green){//turn
+        stepper_turn();
+        linetrace();
+    }
+    else if(cds_data[0]>green){//right
+        stepper_right();
+        linetrace();
+    }
+    else if(cds_data[1]>green){//left
+        stepper_left();
+        linetrace();
+    }
     else{
         stepper_angle(10,10);
-        sleep_ms(1);
         photo();
-        if(data[0]>shiki||data[1]<shiki||data[2]>shiki||data[3]>shiki||data[4]>shiki){
+        if(data[0]>shiki&data[1]>shiki&data[2]>shiki&data[3]>shiki&data[4]>shiki){
             stepper_angle(-10,-10);
-            sleep_ms(1);//過去のデータをもってればここはなくてもいい
-            photo();
-            if(data[0] < shiki&&data[1]<shiki&&data[2]<shiki)stepper_turn_right();
-            else if(data[2] < shiki&&data[3]<shiki&&data[4]<shiki)stepper_turn_left();
+            if(data[0] < shiki&&data[1]<shiki&&data[2]<shiki){
+                stepper_right();
+            }
+            else if(data[2] < shiki&&data[3]<shiki&&data[4]<shiki){
+                stepper_left();//ちょっと前行く必要かるかも
+                }
+        linetrace();
+        }
+        else if(data[2]<shiki){
+            linetrace();
         }
     }
-}//cross終了後はlinetrace()に戻す
+    
+}
+void linetrace(){//crossは交差点などの時にもう一段階判断する用　serchはサーチ
+    photo();
+    if(data[0] < shiki&&data[1]<shiki&&data[2]<shiki)cross();
+    else if(data[2] < shiki&&data[3]<shiki&&data[4]<shiki)cross();
+    else if(data[0]>silver||data[1]>silver||data[2]>silver||data[3]>silver||data[4]>silver)car = car_serch;
+    else{
+        if(data[1]>shiki&&data[3]<shiki)stepper_slow(1,0);
+        if(data[1]<shiki&&data[3]>shiki)stepper_slow(0,1);
+        else stepper_slow(1,1);        
+    }
+}
+
 void sw_init(){
     gpio_init(22);
     gpio_set_dir(22,GPIO_IN);
     gpio_pull_down(22);
 }
 void sw_do(){
-    ans += 1;
-    if(ans%4 == 1){
-        led2_off();
-        led3_off();
-        led2_on();
+    if(switch_sum==0){
+        linetrace();
+        switch_sum += 1;
     }
-    if(ans%4 == 2){
-        led3_off();
-        led2_off();
-        led3_on();
-    }
-    if(ans%4 == 3){
-        led2_off();
-        led3_off();
-        led2_on();
-        led3_on();
-    }
-    if(ans%4==0){
-        led2_off();
-        led3_off();        
+    else{
+        printf("touch");
     }
 }
-int main() {
+
+int main() {//silverチェックをタイムでチェックする
     gpio_set_irq_enabled_with_callback(22, GPIO_IRQ_EDGE_RISE, true, &sw_do);
+    sw_init();
     stdio_init_all();
+    bozzer();
     stepper_setup();
-    bozzer();
-    sleep_ms(100);
-    bozzer();
-    // while(1){
-        stepper_slow(1,1);
-    // }
+    mcp3x08_init();
+    cds_init();
+    stepper_slow(1,0);
 }

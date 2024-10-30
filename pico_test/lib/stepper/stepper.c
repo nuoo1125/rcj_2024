@@ -14,12 +14,17 @@ void stepper_setup(){
     gpio_init(clock_r);
     gpio_init(direction_l);
     gpio_init(direction_r);
+    gpio_init(reset);
     gpio_set_function(clock_l,GPIO_FUNC_PWM);
     gpio_set_function(clock_r,GPIO_FUNC_PWM);
     gpio_set_dir(direction_l,GPIO_OUT);
+    gpio_set_dir(reset,GPIO_OUT);
     gpio_set_dir(direction_r,GPIO_OUT);
-}
+} 
 void stepper_slow(bool forward_l,bool forward_r){
+    gpio_put(reset,1);
+    sleep_ms(2);
+    gpio_put(reset,0);
     if(forward_l == 1 && forward_r == 1){
         gpio_put(direction_l,1);
         gpio_put(direction_r,0);        
@@ -123,5 +128,11 @@ void stepper_break(){
     pwm_set_enabled(slice_num_r, false);
 }
 void stepper_turn(){
-
+    stepper_angle(90,90);
+}
+void stepper_right(){
+    stepper_angle(45,45);
+}
+void stepper_left(){
+    stepper_angle(45,45);
 }
