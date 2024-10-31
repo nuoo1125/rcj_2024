@@ -1,36 +1,52 @@
-import sensor, image, lcd, time
+import sensor, image, time
 
-# カメラとLCDの初期化
-def silver_init():
-    lcd.init()
-    sensor.reset()
-    sensor.set_pixformat(sensor.GRAYSCALE)  # グレースケールモードに設定
-    sensor.set_framesize(sensor.QVGA)
-    sensor.skip_frames(time = 2000)
-    sensor.set_auto_gain(False)  # 自動ゲインをオフにする
-    sensor.set_auto_whitebal(False)  # 自動ホワイトバランスをオフにする
+# カメラの設定
+sensor.reset()
+sensor.set_pixformat(sensor.RGB565)
+sensor.set_framesize(sensor.QVGA)
+sensor.skip_frames(time=2000)
+sensor.set_auto_gain(False)
+sensor.set_auto_whitebal(False)
 
-    # グレースケールしきい値の設定
-    threshold = (180, 255)  # 銀色のボールを認識するための輝度範囲
+while True:
+    img = sensor.snapshot()
 
-# メインループ
-def silever_camera():
-    img = sensor.snapshot()  # カメラ画像をキャプチャ
+    # 赤色三角形の検出
+    red_threshold = (30, 100, 30, 127, 127, 255)
+    for blob in img.find_blobs([red_threshold], area_threshold=200, merge=True):
+        if blob.roundness() < 0.7 and blob.area() > 500:  # 三角形と認識
+            img.draw_rectangle(blob.rect(), color=(255, 0, 0))
+            img.draw_string(blob.x(), blob.y(), "Red Triangle", color=(255, 0, 0))
 
-    # しきい値に基づいてバイナリイメージを作成
-    binary_img = img.binary([threshold])
+    # 緑色三角形の検出
+    green_threshold = (30, 100, -64, -8, -32, 32)
+    for blob in img.find_blobs([green_threshold], area_threshold=200, merge=True):
+        if blob.roundness() < 0.7 and blob.area() > 500:  # 三角形と認識
+            img.draw_rectangle(blob.rect(), color=(0, 255, 0))
+            img.draw_string(blob.x(), blob.y(), "Green Triangle", color=(0, 255, 0))
 
-    # 輪郭を探す
-    blobs = binary_img.find_blobs([threshold], pixels_threshold=200, area_threshold=200, merge=True)
+    # 銀色テープの検出
+    silver_threshold = (0, 100, -20, 20, 20, 127)
+    for blob in img.find_blobs([silver_threshold], area_threshold=200, merge=True):
+        if blob.roundness() > 0.7 and blob.area() > 1000:
+            img.draw_rectangle(blob.rect(), color=(192, 192, 192))
+            img.draw_string(blob.x(), blob.y(), "Silver Tape", color=(192, 192, 192))
 
-    # 検出された領域を描画
-    for blob in blobs:
-        # バウンディングボックスを描画
-        img.draw_rectangle(blob.rect(), color=127)  # グレースケールなので127(中間色)で描画
-        # 中心点を描画
-        img.draw_cross(blob.cx(), blob.cy(), color=127)
-        print("Blob detected: x={}, y={}, w={}, h={}".format(blob.x(), blob.y(), blob.w(), blob.h()))
+    # 黒色テープの検出
+    black_threshold = (0, 30, -20, 20, -20, 20)
+    for blob in img.find_blobs([black_threshold], area_threshold=200, merge=True):
+        if blob.roundness() > 0.7 and blob.area() > 1000:
+            img.draw_rectangle(blob.rect(), color=(0, 0, 0))
+            img.draw_string(blob.x(), blob.y(), "Black Tape", color=(0, 0, 0))
 
-    # 画像をLCDに表示
-    lcd.display(img)
+    # 銀色の球の検出
+    for blob in img.find_blobs([silver_threshold], area_threshold=500, merge=True, margin=10):
+        if blob.roundness() > 0.85:
+            img.draw_circle(blob.cx(), blob.cy(), int(blob.w()/2), color=(192, 192, 192))
+            img.draw_string(blob.cx(), blob.cy(), "Silver Ball", color=(192, 192, 192))
 
+    # 黒色の球の検出
+    for blob in img.find_blobs([black_threshold], area_threshold=500, merge=True, margin=10):
+        if blob.roundness() > 0.85:
+            img.draw_circle(blob.cx(), blob.cy(), int(blob.w()/2), color=(0, 0, 0))
+            img.draw_string(blob.cx(), blob.cy(), "Black Ball", color=(0, 0, 0))
