@@ -113,5 +113,5 @@ int main() {//silverチェックをタイムでチェックする
     stepper_setup();
     mcp3x08_init();
     cds_init();
-    stepper_slow(1,0);
+    stepper_slow(1,1);
 }
