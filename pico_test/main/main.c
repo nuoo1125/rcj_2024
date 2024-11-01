@@ -11,7 +11,7 @@
 
 #define silver 2000
 #define shiki 700
-#define green 1000//適当
+#define green 600//適当
 int cds_data[2];
 int data[6];
 int switch_sum = 0;
@@ -44,7 +44,7 @@ void cds(){
     printf("%d\n",cds_data[1]);
 }
 void serch(){
-    printf("serch");
+    bozzer();
 }
 void cross(){
     stepper_break();
@@ -72,7 +72,7 @@ void cross(){
             else if(data[2] < shiki&&data[3]<shiki&&data[4]<shiki){
                 stepper_left();//ちょっと前行く必要かるかも
                 }
-        linetrace();
+            linetrace();
         }
         else if(data[2]<shiki){
             linetrace();
@@ -102,6 +102,7 @@ void sw_do(){
     }
     else{
         printf("touch");
+        bozzer();
     }
 }
 
@@ -113,5 +114,9 @@ int main() {//silverチェックをタイムでチェックする
     stepper_setup();
     mcp3x08_init();
     cds_init();
-    stepper_slow(1,1);
+    while(1){
+        if(data[1]>shiki&&data[3]<shiki)stepper_slow(1,0);
+        if(data[1]<shiki&&data[3]>shiki)stepper_slow(0,1);
+        else stepper_slow(1,1);  
+    }
 }
