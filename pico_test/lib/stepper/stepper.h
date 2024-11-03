@@ -10,6 +10,7 @@
 #define direction_l  17
 #define clock_r 18
 #define direction_r 19 
+#define sleep 20
 #define reset 21 
 
 #ifdef __cplusplus

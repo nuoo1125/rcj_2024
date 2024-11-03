@@ -9,8 +9,8 @@
 #include "tof/tof.h"
 #include "debagu/debagu.h"
 
-#define silver 2000
-#define shiki 700
+#define silver 20000
+#define shiki 800
 #define green 600//適当
 int cds_data[2];
 int data[6];
@@ -31,9 +31,6 @@ car_state car = car_start;
 void photo(){
     for(int i=0;i<5;i++){
         data[i] = mcp3208_read(i+2);
-        printf("%d",i);
-        printf("  ");
-        printf("%d\n",data[i]);
     }
 }
 void cds(){
@@ -47,7 +44,10 @@ void serch(){
     bozzer();
 }
 void cross(){
+    led3_on();
     stepper_break();
+    sleep_ms(100000000);
+    /*
     cds();
     if(cds_data[0]>green&&cds_data[1]>green){//turn
         stepper_turn();
@@ -66,28 +66,32 @@ void cross(){
         photo();
         if(data[0]>shiki&data[1]>shiki&data[2]>shiki&data[3]>shiki&data[4]>shiki){
             stepper_angle(-10,-10);
+            photo();
             if(data[0] < shiki&&data[1]<shiki&&data[2]<shiki){
                 stepper_right();
             }
             else if(data[2] < shiki&&data[3]<shiki&&data[4]<shiki){
                 stepper_left();//ちょっと前行く必要かるかも
-                }
+            }
             linetrace();
         }
         else if(data[2]<shiki){
             linetrace();
         }
     }
+    */
 }
-void linetrace(){//crossは交差点などの時にもう一段階判断する用　serchはサーチ
-    photo();
-    if(data[0] < shiki&&data[1]<shiki&&data[2]<shiki)cross();
-    else if(data[2] < shiki&&data[3]<shiki&&data[4]<shiki)cross();
-    else if(data[0]>silver||data[1]>silver||data[2]>silver||data[3]>silver||data[4]>silver)serch();
-    else{
-        if(data[1]>shiki&&data[3]<shiki)stepper_slow(1,0);
-        if(data[1]<shiki&&data[3]>shiki)stepper_slow(0,1);
-        else stepper_slow(1,1);        
+void linetrace(){
+    while(1){//crossは交差点などの時にもう一段階判断する用　serchはサーチ
+        photo();
+        if(data[0] < shiki&&data[1]<shiki&&data[2]<shiki)cross();
+        else if(data[2] < shiki&&data[3]<shiki&&data[4]<shiki)cross();
+        else if(data[0]>silver||data[1]>silver||data[2]>silver||data[3]>silver||data[4]>silver)serch();
+        else{
+            if(data[0]>shiki&&data[4]<shiki)stepper_slow(1,0);
+            else if(data[0]<shiki&&data[4]>shiki)stepper_slow(0,1);
+            else stepper_slow(1,1);
+        }
     }
 }
 void sw_init(){
@@ -101,11 +105,11 @@ void sw_do(){
         switch_sum += 1;
     }
     else{
-        printf("touch");
-        bozzer();
+        led3_on();
+        sleep_ms(500);
+        led3_off();
     }
 }
-
 int main() {//silverチェックをタイムでチェックする
     gpio_set_irq_enabled_with_callback(22, GPIO_IRQ_EDGE_RISE, true, &sw_do);
     sw_init();
@@ -114,9 +118,9 @@ int main() {//silverチェックをタイムでチェックする
     stepper_setup();
     mcp3x08_init();
     cds_init();
-    while(1){
-        if(data[1]>shiki&&data[3]<shiki)stepper_slow(1,0);
-        if(data[1]<shiki&&data[3]>shiki)stepper_slow(0,1);
-        else stepper_slow(1,1);  
-    }
+    linetrace();
+        //printf("%d\n",data[0]);
+       // printf("%d\n",data[1]);
+        //printf("%d\n",data[2]);        
+        //printf("%d\n",data[4]);
 }
