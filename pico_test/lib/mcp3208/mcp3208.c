@@ -35,5 +35,7 @@ uint16_t mcp3208_read(uint8_t ch){
 void cds_init(){
     gpio_init(green_led);
     gpio_set_dir(green_led,GPIO_OUT);
+    gpio_init(red_led);
+    gpio_set_dir(red_led,GPIO_OUT);
     mcp3x08_init();
 }

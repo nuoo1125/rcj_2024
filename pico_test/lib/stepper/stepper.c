@@ -92,11 +92,11 @@ void stepper_break(){
     gpio_put(sleep,1);
 }
 void stepper_turn(){
-    stepper_angle(1180,-1180);
+    stepper_angle(1100,-1100);
 }
 void stepper_right(){
-    stepper_angle(-591.5,591.5);
+    stepper_angle(-550,550);
 }
 void stepper_left(){
-    stepper_angle(591.5,-591.5);
+    stepper_angle(550,-550);
 }
