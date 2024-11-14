@@ -65,8 +65,8 @@ void stepper_angle(int16_t angle_l,int16_t angle_r){
     }
     else{
         angle_r *= -1;
-        gpio_put(direction_l,0);
-        gpio_put(direction_r,0);        
+        gpio_put(direction_l,1);
+        gpio_put(direction_r,1);        
     }
     uint slice_num_l = pwm_gpio_to_slice_num(clock_l);
     uint chan_l = pwm_gpio_to_channel(clock_l);
@@ -89,7 +89,6 @@ void stepper_break(){
     uint slice_num_l = pwm_gpio_to_slice_num(clock_l);
     pwm_set_enabled(slice_num_l,false);
     pwm_set_enabled(slice_num_r, false);
-    gpio_put(sleep,1);
 }
 void stepper_turn(){
     stepper_angle(1100,-1100);

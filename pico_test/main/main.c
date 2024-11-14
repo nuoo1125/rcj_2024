@@ -9,9 +9,9 @@
 #include "tof/tof.h"
 #include "debagu/debagu.h"
 
-#define silver 20000
-#define shiki 600
-#define green 2500//適当
+#define silver 2200
+#define shiki 1100
+#define green 3750
 int cds_data[2];
 int data[6];
 int switch_sum = 0;
@@ -36,40 +36,55 @@ void photo(){
 }
 void cds(){
     gpio_put(red_led,1);
+    sleep_ms(1000);
     cds_data[0] = mcp3208_read(0);
     cds_data[1] = mcp3208_read(1);
+    sleep_ms(200);
+    cds_data[0] += mcp3208_read(0);
+    cds_data[1] += mcp3208_read(1);
+    cds_data[0] = cds_data[0]/2;
+    cds_data[1] = cds_data[1]/2;
     printf("%d\n",cds_data[0]);
     printf("%d\n",cds_data[1]);
+
 }
 void serch(){
+    led1_on();
+    led2_on();
+    led3_on();
     bozzer();
+    
 }
 void cross(){
-    led1_on();
-    stepper_angle(100,100);
     bozzer();
     stepper_break();
+    sleep_ms(500);
     cds();
     if(cds_data[0]>green&&cds_data[1]>green){//turn
         led1_on();
         stepper_turn();
-        linetrace();
-        sleep_ms(500);
         led1_off();
+        linetrace();
     }
     else if(cds_data[0]>green){//right
+        led2_on();
+        stepper_angle(30,30);
         bozzer();
         stepper_right();
+        led2_off();
+        stepper_angle(100,100);
         linetrace();
     }
     else if(cds_data[1]>green){//left
-        led2_on();
+        led3_on();
+        stepper_angle(30,30);
         stepper_left();
+        led3_off();
+        stepper_angle(100,100);
         linetrace();
-        sleep_ms(500);
-        led2_off();
     }
     else{
+        stepper_angle(60,60);
         linetrace();
     }
     /*
@@ -100,8 +115,8 @@ void linetrace(){
         else if(data[2] < shiki&&data[3]<shiki&&data[4]<shiki)cross();
         if(data[0]>silver||data[1]>silver||data[2]>silver||data[3]>silver||data[4]>silver)serch();
         else{
-            if(data[0]>shiki&&data[4]<shiki)stepper_slow(1,0);
-            else if(data[0]<shiki&&data[4]>shiki)stepper_slow(0,1);
+            if(data[1]>shiki&&data[3]<shiki)stepper_slow(1,0);
+            else if(data[1]<shiki&&data[3]>shiki)stepper_slow(0,1);
             else stepper_slow(1,1);
         }
     }
@@ -124,11 +139,11 @@ void sw_do(){
 }
 int main() {//silverチェックをタイムでチェックする
     gpio_set_irq_enabled_with_callback(22, GPIO_IRQ_EDGE_RISE, true, &sw_do);
-    sw_init();
     stdio_init_all();
+    sw_init();
     bozzer();
     stepper_setup();
     mcp3x08_init();
+    cds_init();
     linetrace();
-    
 }
