@@ -1,7 +1,7 @@
 from machine import I2C
 import time
 
-i2c = I2C(I2C.I2C0, freq=100000, scl=13, sda=14)
+i2c = I2C(I2C.I2C0, freq=100000, scl=34, sda=35)
 
 raspberry_pico_address = 0x28  
 def send_data(data):
