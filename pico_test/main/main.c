@@ -9,8 +9,8 @@
 #include "tof/tof.h"
 #include "debagu/debagu.h"
 
-#define silver 2200
-#define shiki 1100
+#define silver 4000
+#define shiki 1400
 #define green 3750
 int cds_data[2];
 int data[6];
@@ -53,7 +53,9 @@ void serch(){
     led2_on();
     led3_on();
     bozzer();
-    
+    led1_off();
+    led2_off();
+    led3_off();
 }
 void cross(){
     bozzer();
@@ -63,29 +65,47 @@ void cross(){
     if(cds_data[0]>green&&cds_data[1]>green){//turn
         led1_on();
         stepper_turn();
+        stepper_angle(200,200);
         led1_off();
         linetrace();
     }
     else if(cds_data[0]>green){//right
         led2_on();
-        stepper_angle(30,30);
+        stepper_angle(50,50);
         bozzer();
         stepper_right();
         led2_off();
-        stepper_angle(100,100);
+        stepper_angle(200,200);
         linetrace();
     }
     else if(cds_data[1]>green){//left
         led3_on();
-        stepper_angle(30,30);
+        stepper_angle(50,50);
         stepper_left();
         led3_off();
-        stepper_angle(100,100);
+        stepper_angle(200,200);
         linetrace();
     }
     else{
-        stepper_angle(60,60);
-        linetrace();
+        stepper_angle(100,100);
+        photo();
+        if(data[0]>shiki&data[1]>shiki&data[2]>shiki&data[3]>shiki&data[4]>shiki){
+            stepper_angle(-100,-100);
+            photo();
+            if(data[0]>shiki&data[1]>shiki&data[2]>shiki){
+                stepper_right();
+                stepper_angle(200,200);
+                linetrace();
+            }
+            else{
+                stepper_left();
+                stepper_angle(200,200);
+                linetrace();
+            }
+        }
+        else{
+            linetrace();
+        }
     }
     /*
     else{
@@ -113,7 +133,7 @@ void linetrace(){
         photo();
         if(data[0] < shiki&&data[1]<shiki&&data[2]<shiki)cross();
         else if(data[2] < shiki&&data[3]<shiki&&data[4]<shiki)cross();
-        if(data[0]>silver||data[1]>silver||data[2]>silver||data[3]>silver||data[4]>silver)serch();
+        else if(data[0]>silver||data[1]>silver||data[2]>silver||data[3]>silver||data[4]>silver)serch();
         else{
             if(data[1]>shiki&&data[3]<shiki)stepper_slow(1,0);
             else if(data[1]<shiki&&data[3]>shiki)stepper_slow(0,1);

@@ -36,15 +36,15 @@ void stepper_slow(bool forward_l,bool forward_r){
     }
     uint slice_num_l = pwm_gpio_to_slice_num(clock_l);
     uint chan_l = pwm_gpio_to_channel(clock_l);
-    pwm_set_clkdiv(slice_num_l, 800);
-    pwm_set_wrap(slice_num_l, 2000);
+    pwm_set_clkdiv(slice_num_l, 1000);
+    pwm_set_wrap(slice_num_l, 2500);
     pwm_set_chan_level(slice_num_l, chan_l, 1000);
-    pwm_set_enabled(slice_num_l, true);
     uint slice_num_r = pwm_gpio_to_slice_num(clock_r);
     uint chan_r = pwm_gpio_to_channel(clock_r);
-    pwm_set_clkdiv(slice_num_r, 800);
-    pwm_set_wrap(slice_num_r, 2000);
+    pwm_set_clkdiv(slice_num_r, 1000);
+    pwm_set_wrap(slice_num_r, 2500);
     pwm_set_chan_level(slice_num_r, chan_r, 1000);
+    pwm_set_enabled(slice_num_l, true);
     pwm_set_enabled(slice_num_r, true);
 }
 void stepper_angle(int16_t angle_l,int16_t angle_r){
@@ -91,11 +91,11 @@ void stepper_break(){
     pwm_set_enabled(slice_num_r, false);
 }
 void stepper_turn(){
-    stepper_angle(1100,-1100);
+    stepper_angle(915,-915);
 }
 void stepper_right(){
-    stepper_angle(-550,550);
+    stepper_angle(-465,465);
 }
 void stepper_left(){
-    stepper_angle(550,-550);
+    stepper_angle(465,-465);
 }
