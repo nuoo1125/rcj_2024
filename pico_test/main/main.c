@@ -10,8 +10,8 @@
 #include "debagu/debagu.h"
 
 #define silver 4000000000000000000
-#define shiki 1350
-#define green_white 4100
+#define shiki 850
+#define green_white 3600
 #define green_black 3000
 int cds_green[2];
 int cds_red[2];
@@ -56,6 +56,53 @@ void serch(){
     led1_off();
     led2_off();
     led3_off();
+}
+void cross_half(){
+    bozzer();
+    stepper_break();
+    sleep_ms(500);    
+    cds();
+    if(cds_red[0]>green_white&&cds_red[1]>green_white){//turn
+        led1_on();
+        stepper_turn();
+        stepper_angle(200,200);
+        led1_off();
+        linetrace();
+    }
+    else if(cds_red[0]>green_white){//right
+        led2_on();  
+        stepper_angle(50,50);
+        bozzer();
+        stepper_right();
+        led2_off();
+        stepper_angle(200,200);
+        linetrace();
+    }
+    else if(cds_red[1]>green_white){//left
+        led3_on();
+        stepper_angle(50,50);
+        stepper_left();
+        led3_off();
+        stepper_angle(200,200);
+        linetrace();
+
+    }
+    else{
+        stepper_angle(200,200);
+        photo();
+        if(data[0] > shiki&&data[1] > shiki&&data[2] > shiki&&data[3] > shiki&&data[4] > shiki){
+            stepper_angle(-200,-200);
+            if(car = car_left){
+                stepper_left();
+            }        
+            else{
+                stepper_right();
+            }
+        }
+        else{
+            linetrace();
+        }
+    }
 }
 void cross(){
     bozzer();
@@ -129,10 +176,14 @@ void linetrace(){
     while(1){//crossは交差点などの時にもう一段階判断する用　serchはサーチ
         photo();
         if(data[0] < shiki&&data[1]<shiki&&data[2]<shiki&&data[3]<shiki&&data[4]<shiki)cross();
-        /*
-        else if(data[0]<shiki&&data[1]<shiki&&data[2]<shiki)cross();
-        else if(data[2]<shiki&&data[3]<shiki&&data[4]<shiki)cross();
-        */
+        else if(data[0]<shiki&&data[1]<shiki&&data[2]<shiki){
+            cross_half();
+            car = car_right;
+        }
+        else if(data[2]<shiki&&data[3]<shiki&&data[4]<shiki){
+            cross_half();
+            car = car_left;
+        }
         else if(data[0]>silver||data[1]>silver||data[2]>silver||data[3]>silver||data[4]>silver)serch();
         else{
             if(data[1]>shiki&&data[3]<shiki)stepper_slow(1,0);

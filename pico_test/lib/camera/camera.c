@@ -2,6 +2,7 @@
 #include "hardware/i2c.h"
 #define address 0x28
 int camera_data[1];
+int data[1];
 void i2c_setup() {
     i2c_init(i2c1, 100*1000);
     gpio_set_function(15, GPIO_FUNC_I2C);
