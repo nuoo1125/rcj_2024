@@ -9,10 +9,12 @@
 #include "tof/tof.h"
 #include "debagu/debagu.h"
 
-#define silver 4000
-#define shiki 1400
-#define green 3750
-int cds_data[2];
+#define silver 4000000000000000000
+#define shiki 1350
+#define green_white 4100
+#define green_black 3000
+int cds_green[2];
+int cds_red[2];
 int data[6];
 int switch_sum = 0;
 void linetrace();
@@ -36,17 +38,15 @@ void photo(){
 }
 void cds(){
     gpio_put(red_led,1);
-    sleep_ms(1000);
-    cds_data[0] = mcp3208_read(0);
-    cds_data[1] = mcp3208_read(1);
-    sleep_ms(200);
-    cds_data[0] += mcp3208_read(0);
-    cds_data[1] += mcp3208_read(1);
-    cds_data[0] = cds_data[0]/2;
-    cds_data[1] = cds_data[1]/2;
-    printf("%d\n",cds_data[0]);
-    printf("%d\n",cds_data[1]);
-
+    sleep_ms(500);
+    cds_red[0] = mcp3208_read(0);
+    cds_red[1] = mcp3208_read(1);
+    gpio_put(red_led,0);
+    gpio_put(green_led,1);
+    sleep_ms(500);
+    cds_green[0] = mcp3208_read(0);
+    cds_green[1] = mcp3208_read(1);
+    gpio_put(green_led,0);
 }
 void serch(){
     led1_on();
@@ -61,50 +61,48 @@ void cross(){
     bozzer();
     stepper_break();
     sleep_ms(500);
-    cds();
-    if(cds_data[0]>green&&cds_data[1]>green){//turn
-        led1_on();
-        stepper_turn();
-        stepper_angle(200,200);
-        led1_off();
+    cds();/*
+    if(cds_green[0]<green_black&&cds_green[1]<green_black){
+        stepper_angle(-200,-200);
         linetrace();
     }
-    else if(cds_data[0]>green){//right
-        led2_on();
-        stepper_angle(50,50);
-        bozzer();
-        stepper_right();
-        led2_off();
-        stepper_angle(200,200);
+    else if(cds_green[0]<green_black){
+        stepper_angle(100,-100);
         linetrace();
     }
-    else if(cds_data[1]>green){//left
-        led3_on();
-        stepper_angle(50,50);
-        stepper_left();
-        led3_off();
-        stepper_angle(200,200);
+    else if(cds_green[1]<green_black){
+        stepper_angle(-100,100);
         linetrace();
     }
-    else{
-        stepper_angle(100,100);
-        photo();
-        if(data[0]>shiki&data[1]>shiki&data[2]>shiki&data[3]>shiki&data[4]>shiki){
-            stepper_angle(-100,-100);
-            photo();
-            if(data[0]>shiki&data[1]>shiki&data[2]>shiki){
-                stepper_right();
-                stepper_angle(200,200);
-                linetrace();
-            }
-            else{
-                stepper_left();
-                stepper_angle(200,200);
-                linetrace();
-            }
+    */
+        if(cds_red[0]>green_white&&cds_red[1]>green_white){//turn
+            led1_on();
+            stepper_turn();
+            stepper_angle(200,200);
+            led1_off();
+            linetrace();
+        }
+        else if(cds_red[0]>green_white){//right
+            led2_on();
+            stepper_angle(50,50);
+            bozzer();
+            stepper_right();
+            led2_off();
+            stepper_angle(200,200);
+            linetrace();
+        }
+        else if(cds_red[1]>green_white){//left
+            led3_on();
+            stepper_angle(50,50);
+            stepper_left();
+            led3_off();
+            stepper_angle(200,200);
+            linetrace();
         }
         else{
+            stepper_angle(100,100);
             linetrace();
+
         }
     }
     /*
@@ -127,12 +125,14 @@ void cross(){
         }
     }
     */
-}
 void linetrace(){
     while(1){//crossは交差点などの時にもう一段階判断する用　serchはサーチ
         photo();
-        if(data[0] < shiki&&data[1]<shiki&&data[2]<shiki)cross();
-        else if(data[2] < shiki&&data[3]<shiki&&data[4]<shiki)cross();
+        if(data[0] < shiki&&data[1]<shiki&&data[2]<shiki&&data[3]<shiki&&data[4]<shiki)cross();
+        /*
+        else if(data[0]<shiki&&data[1]<shiki&&data[2]<shiki)cross();
+        else if(data[2]<shiki&&data[3]<shiki&&data[4]<shiki)cross();
+        */
         else if(data[0]>silver||data[1]>silver||data[2]>silver||data[3]>silver||data[4]>silver)serch();
         else{
             if(data[1]>shiki&&data[3]<shiki)stepper_slow(1,0);
@@ -157,7 +157,7 @@ void sw_do(){
         led3_off();
     }
 }
-int main() {//silverチェックをタイムでチェックする
+int main() {
     gpio_set_irq_enabled_with_callback(22, GPIO_IRQ_EDGE_RISE, true, &sw_do);
     stdio_init_all();
     sw_init();
